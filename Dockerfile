@@ -2,13 +2,15 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir poetry
+# Копіюємо тільки конфіг
+COPY pyproject.toml /app/
 
-COPY pyproject.toml poetry.lock* /app/
+# Встановлюємо Poetry та залежності
+RUN pip install --no-cache-dir poetry \
+    && poetry config virtualenvs.create false \
+    && poetry install --no-interaction --no-ansi --no-root
 
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi
-
-COPY . /app
+# Копіюємо код застосунку
+COPY assistant /app/assistant
 
 CMD ["python", "-m", "assistant.main"]
